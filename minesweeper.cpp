@@ -59,6 +59,9 @@ int main()
 	bool cellPressed = false;
 	bool shouldRestart = true;
 
+	bool mainScreen = true;
+	bool winScreen = false;
+
 	bool isWon = false;
 
 	// CLOCKS ----------------------------------------------------------------------------
@@ -71,7 +74,7 @@ int main()
 	sf::Texture menuTexture;
 	menuTexture.loadFromFile("res/hud/mainMenu.png");
 	sf::Texture buttonTexture;
-	menuTexture.loadFromFile("res/hud/menu.png");
+	buttonTexture.loadFromFile("res/hud/button.png");
 	sf::Texture areaTexture;
 	areaTexture.loadFromFile("res/hud/area.png");
 
