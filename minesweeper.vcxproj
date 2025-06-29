@@ -137,13 +137,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
-    <ClInclude Include="resource1.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="minesweeper1.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="M:\prog\Icons\favorites\разные\FACE01.ICO" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

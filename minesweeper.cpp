@@ -142,7 +142,7 @@ int main()
 	int gameOverField[fieldHeight + 2][fieldWidth + 2] = { 0 };
 
 	int bombsAmount = 0;
-	int bombsPercent = 80; //max <100 note: still bugged
+	int bombsPercent = 90; //max <100 note: still bugged
 	int flagsCounter = 0;
 
 	while (window.isOpen())
@@ -253,8 +253,7 @@ int main()
 									for (int l = -1; l < 2; l++)
 									{
 										if (shownField[cell_x + k][cell_y + l] == 10 && field[cell_x + k][cell_y + l] == 0) {
-											shownField[cell_x + k][cell_y + l] = 14;
-											shownField[cell_x][cell_y] = 0;
+											shownField[cell_x + k][cell_y + l] = 0;
 										}
 										else {
 											shownField[cell_x + k][cell_y + l] = field[cell_x + k][cell_y + l];
@@ -330,22 +329,21 @@ int main()
 					rightCounter += 1;
 					gameOverField[i][j] = 11;
 				} 
-				else if (field[cell_x][cell_y] == 14) {
+				else if (shownField[i][j] == 0 && cellPressed) {
 					for (int k = -1; k < 2; k++)
 					{
 						for (int l = -1; l < 2; l++)
 						{
-							if (shownField[cell_x + k][cell_y + l] == 14 && field[cell_x + k][cell_y + l] == 0) {
-								shownField[cell_x + k][cell_y + l] = 14;
-								shownField[cell_x][cell_y] = 0;
+							if (field[i + k][j + l] != 9) {
+								shownField[i + k][j + l] = field[i + k][j + l];
 							}
 						}
 					}
 				}
-				else if (shownField[i][j] != 9)
+				/*else if (shownField[i][j] != 9)
 				{
 
-				}
+				}*/
 				else {
 					gameOverField[i][j] = field[i][j];
 				}
