@@ -59,7 +59,7 @@ int main()
 	bool cellPressed = false;
 	bool shouldRestart = true;
 
-	bool mainScreen = true;
+	bool menuScreen = true;
 	bool winScreen = false;
 
 	bool isWon = false;
@@ -142,7 +142,7 @@ int main()
 	int gameOverField[fieldHeight + 2][fieldWidth + 2] = { 0 };
 
 	int bombsAmount = 0;
-	int bombsPercent = 2; //max <100
+	int bombsPercent = 80; //max <100 note: still bugged
 	int flagsCounter = 0;
 
 	while (window.isOpen())
@@ -247,7 +247,24 @@ int main()
 					if (!gameOver) {
 						if (shownField[cell_x][cell_y] == 10) {
 
-							shownField[cell_x][cell_y] = field[cell_x][cell_y];
+							if (field[cell_x][cell_y] == 0) {
+								for (int k = -1; k < 2; k++)
+								{
+									for (int l = -1; l < 2; l++)
+									{
+										if (shownField[cell_x + k][cell_y + l] == 10 && field[cell_x + k][cell_y + l] == 0) {
+											shownField[cell_x + k][cell_y + l] = 14;
+											shownField[cell_x][cell_y] = 0;
+										}
+										else {
+											shownField[cell_x + k][cell_y + l] = field[cell_x + k][cell_y + l];
+										}
+									}
+								}
+							}
+							else {
+								shownField[cell_x][cell_y] = field[cell_x][cell_y];
+							}
 
 							if (field[cell_x][cell_y] == 9) {
 								explosion.x = cell_x * 32 - 16;
@@ -300,6 +317,7 @@ int main()
 		}
 
 		int rightCounter = 0;
+		int allCells = fieldWidth * fieldHeight;
 
 		for (int i = 1; i < fieldHeight + 1; i++)
 		{
@@ -310,8 +328,23 @@ int main()
 				}
 				else if (field[i][j] == 9 && shownField[i][j] == 11) {
 					rightCounter += 1;
-
 					gameOverField[i][j] = 11;
+				} 
+				else if (field[cell_x][cell_y] == 14) {
+					for (int k = -1; k < 2; k++)
+					{
+						for (int l = -1; l < 2; l++)
+						{
+							if (shownField[cell_x + k][cell_y + l] == 14 && field[cell_x + k][cell_y + l] == 0) {
+								shownField[cell_x + k][cell_y + l] = 14;
+								shownField[cell_x][cell_y] = 0;
+							}
+						}
+					}
+				}
+				else if (shownField[i][j] != 9)
+				{
+
 				}
 				else {
 					gameOverField[i][j] = field[i][j];
@@ -348,12 +381,17 @@ int main()
 
 			if (explosionTime.asMilliseconds() >= 25) {
 				if (explosion.scale_x < 8 && !explosion.shouldShrink) {
-					explosion.scale_x += 0.2;
-					explosion.scale_y += 0.2;
+					explosion.scale_x += 0.35;
+					explosion.scale_y += 0.35;
 				}
 				else if (explosion.scale_x > 0) {
-					explosion.scale_x -= 0.05;
-					explosion.scale_y -= 0.05;
+					explosion.scale_x -= 0.35;
+					explosion.scale_y -= 0.35;
+				}
+
+				if (explosion.scale_x < 0) {
+					explosion.scale_x = 0;
+					explosion.scale_y = 0;
 				}
 
 				if (explosion.scale_x >= 8) {
@@ -427,7 +465,7 @@ int main()
 			if (winScreen) {
 
 			}
-			if (mainScreen) {
+			if (menuScreen) {
 				area.setPosition(pos.x, pos.y);
 
 				window.draw(area);
