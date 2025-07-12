@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <ctime>
+#include <string>
 
 int main()
 {
@@ -12,6 +13,7 @@ int main()
 
 	sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "нень");
 	bool inGame = true;
+	std::string theme = "";
 
 	const int fieldWidth = 10;
 	const int fieldHeight = 10;
@@ -71,29 +73,62 @@ int main()
 	sf::Clock dimClock;
 
 	// TEXTURES --------------------------------------------------------------------------
-	sf::Texture menuTexture;
-	menuTexture.loadFromFile("res/hud/mainMenu.png");
+	sf::Texture menuBgTexture;
 	sf::Texture buttonTexture;
-	buttonTexture.loadFromFile("res/hud/button.png");
 	sf::Texture areaTexture;
-	areaTexture.loadFromFile("res/hud/area.png");
 
 	sf::Texture tilesTexture;
-	tilesTexture.loadFromFile("res/field/tiles.png");
+
 	sf::Texture explosionTexture;
-	explosionTexture.loadFromFile("res/hud/explosion.png");
 
 	sf::Texture frameTexture;
-	frameTexture.loadFromFile("res/hud/frame.png");
+
 	sf::Texture counterTexture;
-	counterTexture.loadFromFile("res/hud/counter.png");
+
 	sf::Texture smileTexture;
-	smileTexture.loadFromFile("res/hud/smile.png");
 	sf::Texture smilePressedTexture;
-	smilePressedTexture.loadFromFile("res/hud/smile_pressed.png");
+	sf::Texture smileHappyTexture;
+	sf::Texture smileSadTexture;
+
+	if (theme == "old") {
+		menuBgTexture.loadFromFile("res/hud/mainMenuBg.png");
+		buttonTexture.loadFromFile("res/hud/button.png");
+		areaTexture.loadFromFile("res/hud/area.png");
+
+		tilesTexture.loadFromFile("res/field/tiles_old.png");
+
+		explosionTexture.loadFromFile("res/hud/explosion.png");
+
+		frameTexture.loadFromFile("res/hud/frame_old.png");
+
+		counterTexture.loadFromFile("res/hud/counter_old.png");
+
+		smileTexture.loadFromFile("res/hud/smile_old.png");
+		smilePressedTexture.loadFromFile("res/hud/smile_pressed_old.png");
+		smileHappyTexture.loadFromFile("res/hud/smileHappy_old.png");
+		smileSadTexture.loadFromFile("res/hud/smileSad_old.png");
+	}
+	else {
+		menuBgTexture.loadFromFile("res/hud/mainMenuBg.png");
+		buttonTexture.loadFromFile("res/hud/button.png");
+		areaTexture.loadFromFile("res/hud/area.png");
+
+		tilesTexture.loadFromFile("res/field/tiles.png");
+
+		explosionTexture.loadFromFile("res/hud/explosion.png");
+
+		frameTexture.loadFromFile("res/hud/frame.png");
+
+		counterTexture.loadFromFile("res/hud/counter.png");
+
+		smileTexture.loadFromFile("res/hud/smile.png");
+		smilePressedTexture.loadFromFile("res/hud/smile_pressed.png");
+		smileHappyTexture.loadFromFile("res/hud/smileHappy.png");
+		smileSadTexture.loadFromFile("res/hud/smileSad.png");
+	}
 
 	// SPRITES ---------------------------------------------------------------------------
-	sf::Sprite menu(menuTexture); //434343
+	sf::Sprite menu(menuBgTexture); //434343
 	sf::Sprite area(areaTexture);
 
 	sf::Sprite tiles(tilesTexture);
@@ -116,17 +151,15 @@ int main()
 	// COUNTERS --------------------------------------------------------------------------
 	sf::Text flagsCounterT;
 	flagsCounterT.setFont(font);
-	flagsCounterT.setFillColor(sf::Color(216, 139, 139));
-	flagsCounterT.setPosition(22, 14);
+	flagsCounterT.setPosition(30, 14);
 
 	sf::Text elapsedTimeT;
 	elapsedTimeT.setFont(font);
-	elapsedTimeT.setFillColor(sf::Color(216, 139, 139));
-	elapsedTimeT.setPosition(264, 14);
+	elapsedTimeT.setPosition(256, 14);
 	elapsedTimeT.setString("0");
 
-	flagsCounterBg.setPosition(18, 16);
-	timeCounterBg.setPosition(260, 16);
+	flagsCounterBg.setPosition(26, 16);
+	timeCounterBg.setPosition(252, 16);
 
 	explosionObj.setOrigin(32, 32);
 	area.setOrigin(128, 128); //ffffff
@@ -134,7 +167,18 @@ int main()
 	smile.setOrigin(24, 24);
 	smile.setPosition(WINDOW_WIDTH / 2, 32);
 
-	background.setFillColor(sf::Color(106, 106, 106));
+	if (theme == "old") {
+		elapsedTimeT.setFillColor(sf::Color(216, 139, 139));
+		flagsCounterT.setFillColor(sf::Color(216, 139, 139));
+
+		background.setFillColor(sf::Color(106, 106, 106));
+	}
+	else {
+		elapsedTimeT.setFillColor(sf::Color::White);
+		flagsCounterT.setFillColor(sf::Color::White);
+
+		background.setFillColor(sf::Color(64, 78, 99));
+	}
 
 	int field[fieldHeight + 2][fieldWidth + 2] = { 0 };
 	int shownField[fieldHeight + 2][fieldWidth + 2] = { 0 };
@@ -142,8 +186,17 @@ int main()
 	int gameOverField[fieldHeight + 2][fieldWidth + 2] = { 0 };
 
 	int bombsAmount = 0;
-	int bombsPercent = 90; //max <100 note: still bugged
+	int bombsPercent = 80; //max <100 note: still bugged
 	int flagsCounter = 0;
+
+	int rightCounter = 0;
+	int cellsOpened = 0;
+
+	//
+	//
+	// UPDATE PART
+	//
+	//
 
 	while (window.isOpen())
 	{
@@ -227,17 +280,21 @@ int main()
 
 			gameOver = false;
 			cellPressed = false;
+			isWon = false;
 			gameClock.restart();
 			elapsedTimeT.setString("0");
 
+			smile.setTexture(smileTexture);
+
 			shouldRestart = false;
 		}
-
 
 		flagsCounterT.setString(std::to_string(flagsCounter));
 
 		if (!gameOver && cellPressed) {
 			elapsedTimeT.setString(std::to_string((int)gameTime.asSeconds()));
+			//flagsCounterT.setString(std::to_string(window.getSize().x) + "; " + std::to_string(window.getSize().y));
+			//flagsCounterT.setString(std::to_string(cellsOpened));
 		}
 
 		while (window.pollEvent(event))
@@ -315,8 +372,9 @@ int main()
 				window.close();
 		}
 
-		int rightCounter = 0;
-		int allCells = fieldWidth * fieldHeight;
+		int cellsOnField = fieldWidth * fieldHeight;
+		cellsOpened = 0;
+		rightCounter = 0;
 
 		for (int i = 1; i < fieldHeight + 1; i++)
 		{
@@ -340,18 +398,23 @@ int main()
 						}
 					}
 				}
-				/*else if (shownField[i][j] != 9)
-				{
-
-				}*/
 				else {
 					gameOverField[i][j] = field[i][j];
+				}
+
+				if (shownField[i][j] != 11 && shownField[i][j] != 10) {
+					cellsOpened += 1;
 				}
 			}
 		}
 
-		if (rightCounter == bombsAmount) {
+		if (cellsOnField - bombsAmount == cellsOpened && rightCounter == bombsAmount) {
 			isWon = true;
+		}
+
+		if (isWon) {
+			winScreen = true;
+			smile.setTexture(smileHappyTexture);
 		}
 
 		sf::Time dimTime = dimClock.getElapsedTime();
@@ -366,6 +429,8 @@ int main()
 			sf::Time flashTime = flashClock.getElapsedTime();
 			sf::Time shakeTime = shakeClock.getElapsedTime();
 			sf::Time explosionTime = explosionClock.getElapsedTime();
+
+			smile.setTexture(smileSadTexture);
 
 			if (shakeTime.asMilliseconds() >= 25 && shake.intensity > 0) {
 				shake.offset_x = rand() % shake.intensity - shake.intensity / 2;
@@ -418,19 +483,21 @@ int main()
 			{
 				for (int j = 0; j < fieldHeight; j++)
 				{
-					int tileId = rand() % 12;
+					tiles.setPosition(i * 32 + shake.offset_x + 16, j * 32 + shake.offset_y + 64);
 					if (!gameOver) {
 						tiles.setTextureRect(sf::IntRect(32 * shownField[i + 1][j + 1], 0, 32, 32));
 					}
 					else {
 						tiles.setTextureRect(sf::IntRect(32 * gameOverField[i + 1][j + 1], 0, 32, 32));
 					}
-					tiles.setPosition(i * 32 + shake.offset_x + 16, j * 32 + shake.offset_y + 64);
 					window.draw(tiles);
 
 					//Logs mouse coordinates
 					//std::cout << pos.x << "; " << pos.y << "\n";
-				}
+				
+					//Logs window size
+					//std::cout << window.getSize().x << "; " << window.getSize().y << "\n";
+				}	
 			}
 
 			window.draw(smile);
